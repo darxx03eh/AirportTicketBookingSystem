@@ -67,129 +67,186 @@ public class PassengerMenu(
 
     private void SearchAndBook()
     {
-        AnsiConsole.Clear();
-        AnsiConsole.MarkupLine("[bold underline]Search Flights[/]\n");
-
-        var filter  = BuildFlightFilter();
-        var flights = _flightService.SearchFlights(filter).ToList();
-
-        FlightDisplay.ShowFlightsTable(flights);
-
-        if (!flights.Any()) return;
-
-        var book = AnsiConsole.Confirm("\nWould you like to book one of these flights?");
-        if (!book) return;
-
-        var flightIndex = AnsiConsole.Prompt(
-            new TextPrompt<int>("Enter flight [cyan]#[/] to book:")
-                .Validate(n => n >= 1 && n <= flights.Count
-                    ? ValidationResult.Success()
-                    : ValidationResult.Error($"Enter a number between 1 and {flights.Count}.")));
-
-        var selectedFlight = flights[flightIndex - 1];
-
-        var flightClass = AnsiConsole.Prompt(
-            new SelectionPrompt<FlightType>()
-                .Title("Select [bold]class[/]:")
-                .AddChoices(FlightType.Economy, FlightType.Business, FlightType.FirstClass));
-
-        AnsiConsole.MarkupLine($"\n[grey]Price: [green]${selectedFlight.GetPriceForType(flightClass):F2}[/][/]");
-
-        if (!AnsiConsole.Confirm("Confirm booking?")) return;
-
-        try
+        while (true)
         {
-            var booking = _bookingService.CreateBooking(_currentPassenger!.Id, selectedFlight.Id, flightClass);
-            BookingDisplay.ShowBookingConfirmation(booking);
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
+            AnsiConsole.Clear();
+            AnsiConsole.MarkupLine("[bold underline]Search Flights[/]\n");
+
+            var filter  = BuildFlightFilter();
+            if (filter == null) break;
+
+            var flights = _flightService.SearchFlights(filter).ToList();
+
+            FlightDisplay.ShowFlightsTable(flights);
+
+            if (!flights.Any()) break;
+
+            var book = AnsiConsole.Confirm("\nWould you like to book one of these flights?");
+            if (!book) break;
+
+            var flightIndex = AnsiConsole.Prompt(
+                new TextPrompt<int>("Enter flight [cyan]#[/] to book:")
+                    .Validate(n => n >= 1 && n <= flights.Count
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error($"Enter a number between 1 and {flights.Count}.")));
+
+            var selectedFlight = flights[flightIndex - 1];
+
+            var flightClass = AnsiConsole.Prompt(
+                new SelectionPrompt<FlightType>()
+                    .Title("Select [bold]class[/]:")
+                    .AddChoices(FlightType.Economy, FlightType.Business, FlightType.FirstClass));
+
+            AnsiConsole.MarkupLine($"\n[grey]Price: [green]${selectedFlight.GetPriceForType(flightClass):F2}[/][/]");
+
+            if (!AnsiConsole.Confirm("Confirm booking?")) break;
+
+            try
+            {
+                var booking = _bookingService.CreateBooking(_currentPassenger!.Id, selectedFlight.Id, flightClass);
+                BookingDisplay.ShowBookingConfirmation(booking);
+                break;
+            }
+            catch (Exception ex)
+            {
+                AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
+                if (!AnsiConsole.Confirm("Try again?")) break;
+            }
         }
     }
 
     private void ViewMyBookings()
     {
-        AnsiConsole.Clear();
-        AnsiConsole.MarkupLine("[bold underline]My Bookings[/]\n");
+        while (true)
+        {
+            AnsiConsole.Clear();
+            AnsiConsole.MarkupLine("[bold underline]My Bookings[/]\n");
 
-        var bookings = _bookingService.GetPassengerBookings(_currentPassenger!.Id);
-        BookingDisplay.ShowBookingsTable(bookings);
+            var bookings = _bookingService.GetPassengerBookings(_currentPassenger!.Id);
+            BookingDisplay.ShowBookingsTable(bookings);
+
+            if (!bookings.Any())
+            {
+                AnsiConsole.MarkupLine("[yellow]You have no bookings to view.[/]");
+                break;
+            }
+
+            var choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[bold]Select an option:[/]")
+                    .AddChoices("Back to Main Menu"));
+
+            if (choice == "Back to Main Menu") break;
+        }
     }
 
     private void CancelBooking()
     {
-        AnsiConsole.Clear();
-        var bookings = _bookingService.GetPassengerBookings(_currentPassenger!.Id).ToList();
-
-        if (!bookings.Any())
+        while (true)
         {
-            AnsiConsole.MarkupLine("[yellow]You have no bookings to cancel.[/]");
-            return;
-        }
+            AnsiConsole.Clear();
+            var bookings = _bookingService.GetPassengerBookings(_currentPassenger!.Id).ToList();
 
-        BookingDisplay.ShowBookingsTable(bookings);
+            if (!bookings.Any())
+            {
+                AnsiConsole.MarkupLine("[yellow]You have no bookings to cancel.[/]");
+                break;
+            }
 
-        var index = AnsiConsole.Prompt(
-            new TextPrompt<int>("Enter booking [cyan]#[/] to cancel:")
-                .Validate(n => n >= 1 && n <= bookings.Count
-                    ? ValidationResult.Success()
-                    : ValidationResult.Error("Invalid selection.")));
+            BookingDisplay.ShowBookingsTable(bookings);
 
-        var booking = bookings[index - 1];
+            var choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[bold]Select an option:[/]")
+                    .AddChoices("Cancel Booking", "Back to Main Menu"));
 
-        if (!AnsiConsole.Confirm($"[red]Cancel booking for flight {booking.Flight?.FlightNumber}?[/]")) return;
+            if (choice == "Cancel Booking")
+            {
+                var index = AnsiConsole.Prompt(
+                    new TextPrompt<int>("Enter booking [cyan]#[/] to cancel:")
+                        .Validate(n => n >= 1 && n <= bookings.Count
+                            ? ValidationResult.Success()
+                            : ValidationResult.Error("Invalid selection.")));
 
-        try
-        {
-            _bookingService.CancelBooking(booking.Id, _currentPassenger!.Id);
-            AnsiConsole.MarkupLine("[green]Booking cancelled successfully.[/]");
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
+                var booking = bookings[index - 1];
+
+                if (!AnsiConsole.Confirm($"[red]Cancel booking for flight {booking.Flight?.FlightNumber}?[/]")) break;
+
+                try
+                {
+                    _bookingService.CancelBooking(booking.Id, _currentPassenger!.Id);
+                    AnsiConsole.MarkupLine("[green]Booking cancelled successfully.[/]");
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
+                    if (!AnsiConsole.Confirm("Try again?")) break;
+                }
+            }
+            else
+            {
+                break;
+            }
         }
     }
 
     private void ModifyBooking()
     {
-        AnsiConsole.Clear();
-        var bookings = _bookingService.GetPassengerBookings(_currentPassenger!.Id).ToList();
-
-        if (!bookings.Any())
+        while (true)
         {
-            AnsiConsole.MarkupLine("[yellow]You have no bookings to modify.[/]");
-            return;
-        }
+            AnsiConsole.Clear();
+            var bookings = _bookingService.GetPassengerBookings(_currentPassenger!.Id).ToList();
 
-        BookingDisplay.ShowBookingsTable(bookings);
+            if (!bookings.Any())
+            {
+                AnsiConsole.MarkupLine("[yellow]You have no bookings to modify.[/]");
+                break;
+            }
 
-        var index = AnsiConsole.Prompt(
-            new TextPrompt<int>("Enter booking [cyan]#[/] to modify:")
-                .Validate(n => n >= 1 && n <= bookings.Count
-                    ? ValidationResult.Success()
-                    : ValidationResult.Error("Invalid selection.")));
+            BookingDisplay.ShowBookingsTable(bookings);
 
-        var booking = bookings[index - 1];
+            var choice = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[bold]Select an option:[/]")
+                    .AddChoices("Modify Booking", "Back to Main Menu"));
 
-        FlightType? newType = null;
-        if (AnsiConsole.Confirm("Change travel class?"))
-        {
-            newType = AnsiConsole.Prompt(
-                new SelectionPrompt<FlightType>()
-                    .Title("Select new [bold]class[/]:")
-                    .AddChoices(FlightType.Economy, FlightType.Business, FlightType.FirstClass));
-        }
+            if (choice == "Modify Booking")
+            {
+                var index = AnsiConsole.Prompt(
+                    new TextPrompt<int>("Enter booking [cyan]#[/] to modify:")
+                        .Validate(n => n >= 1 && n <= bookings.Count
+                            ? ValidationResult.Success()
+                            : ValidationResult.Error("Invalid selection.")));
 
-        try
-        {
-            var updated = _bookingService.ModifyBooking(booking.Id, _currentPassenger!.Id, null, newType);
-            AnsiConsole.MarkupLine("[green]Booking updated successfully.[/]");
-            BookingDisplay.ShowBookingConfirmation(updated);
-        }
-        catch (Exception ex)
-        {
-            AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
+                var booking = bookings[index - 1];
+
+                FlightType? newType = null;
+                if (AnsiConsole.Confirm("Change travel class?"))
+                {
+                    newType = AnsiConsole.Prompt(
+                        new SelectionPrompt<FlightType>()
+                            .Title("Select new [bold]class[/]:")
+                            .AddChoices(FlightType.Economy, FlightType.Business, FlightType.FirstClass));
+                }
+
+                try
+                {
+                    var updated = _bookingService.ModifyBooking(booking.Id, _currentPassenger!.Id, null, newType);
+                    AnsiConsole.MarkupLine("[green]Booking updated successfully.[/]");
+                    BookingDisplay.ShowBookingConfirmation(updated);
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    AnsiConsole.MarkupLine($"[red]Error: {ex.Message}[/]");
+                    if (!AnsiConsole.Confirm("Try again?")) break;
+                }
+            }
+            else
+            {
+                break;
+            }
         }
     }
 
@@ -198,11 +255,22 @@ public class PassengerMenu(
         AnsiConsole.MarkupLine("[grey](Leave blank to skip any filter)[/]\n");
 
         var departureCountry   = Ask("Departure Country");
+        if (departureCountry == "BACK") return null!;
+
         var destinationCountry = Ask("Destination Country");
+        if (destinationCountry == "BACK") return null!;
+
         var departureAirport   = Ask("Departure Airport");
+        if (departureAirport == "BACK") return null!;
+
         var arrivalAirport     = Ask("Arrival Airport");
+        if (arrivalAirport == "BACK") return null!;
+
         var dateInput          = Ask("Departure Date yyyy-MM-dd");
+        if (dateInput == "BACK") return null!;
+
         var priceInput         = Ask("Max Price in USD");
+        if (priceInput == "BACK") return null!;
 
         var classChoice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -227,8 +295,12 @@ public class PassengerMenu(
 
     private string? Ask(string label)
     {
-        var value = AnsiConsole.Ask<string>($"[cyan]{label} (or blank):[/]");
-        return string.IsNullOrWhiteSpace(value) ? null : value;
+        var value = AnsiConsole.Ask<string>($"[cyan]{label} (or blank, or 'BACK' to go to main menu):[/]");
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+        if (value.Equals("BACK", StringComparison.OrdinalIgnoreCase))
+            return "BACK";
+        return value;
     }
 
     private DateTime? ParseOptionalDate(string? input) =>

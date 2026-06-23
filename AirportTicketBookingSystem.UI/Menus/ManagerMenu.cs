@@ -39,7 +39,7 @@ public class ManagerMenu(
                 case "Filter All Bookings":   FilterBookings(); break;
                 case "Import Flights from CSV": ImportFlights(); break;
                 case "View Validation Rules": ViewValidationRules(); break;
-                case "Logout": return;
+                case "Logout":                 return;
             }
 
             AnsiConsole.MarkupLine("\n[grey]Press any key to continue...[/]");
@@ -68,59 +68,103 @@ public class ManagerMenu(
 
     private void FilterBookings()
     {
-        AnsiConsole.Clear();
-        AnsiConsole.MarkupLine("[bold underline]Filter Bookings[/]\n");
-        AnsiConsole.MarkupLine("[grey](Leave blank to skip any filter)[/]\n");
-
-        var filter = new BookingSearchFilter
+        while (true)
         {
-            FlightNumber       = Ask("Flight Number"),
-            PassengerName      = Ask("Passenger Name"),
-            DepartureCountry   = Ask("Departure Country"),
-            DestinationCountry = Ask("Destination Country"),
-            DepartureAirport   = Ask("Departure Airport"),
-            ArrivalAirport     = Ask("Arrival Airport"),
-            DepartureDate      = ParseDate(Ask("Departure Date (yyyy-MM-dd)")),
-            MaxPrice           = ParseDecimal(Ask("Max Price (USD)")),
-            Type              = ParseType(AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[cyan]Class filter:[/]")
-                    .AddChoices("Any", "Economy", "Business", "FirstClass")))
-        };
+            AnsiConsole.Clear();
+            AnsiConsole.MarkupLine("[bold underline]Filter Bookings[/]\n");
+            AnsiConsole.MarkupLine("[grey](Leave blank to skip any filter)[/]\n");
 
-        var bookings = _bookingService.FilterBookings(filter);
-        BookingDisplay.ShowBookingsTable(bookings);
+            var flightNumber = Ask("Flight Number");
+            if (flightNumber == "BACK") break;
+
+            var passengerName = Ask("Passenger Name");
+            if (passengerName == "BACK") break;
+
+            var departureCountry = Ask("Departure Country");
+            if (departureCountry == "BACK") break;
+
+            var destinationCountry = Ask("Destination Country");
+            if (destinationCountry == "BACK") break;
+
+            var departureAirport = Ask("Departure Airport");
+            if (departureAirport == "BACK") break;
+
+            var arrivalAirport = Ask("Arrival Airport");
+            if (arrivalAirport == "BACK") break;
+
+            var departureDateInput = Ask("Departure Date (yyyy-MM-dd)");
+            if (departureDateInput == "BACK") break;
+
+            var maxPriceInput = Ask("Max Price (USD)");
+            if (maxPriceInput == "BACK") break;
+
+            var filter = new BookingSearchFilter
+            {
+                FlightNumber       = flightNumber,
+                PassengerName      = passengerName,
+                DepartureCountry   = departureCountry,
+                DestinationCountry = destinationCountry,
+                DepartureAirport   = departureAirport,
+                ArrivalAirport     = arrivalAirport,
+                DepartureDate      = ParseDate(departureDateInput),
+                MaxPrice           = ParseDecimal(maxPriceInput),
+                Type              = ParseType(AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("[cyan]Class filter:[/]")
+                        .AddChoices("Any", "Economy", "Business", "FirstClass")))
+            };
+
+            var bookings = _bookingService.FilterBookings(filter);
+            BookingDisplay.ShowBookingsTable(bookings);
+
+            if (!AnsiConsole.Confirm("Filter again?")) break;
+        }
     }
 
     private void ImportFlights()
     {
-        AnsiConsole.Clear();
-        AnsiConsole.MarkupLine("[bold underline]Import Flights from CSV[/]\n");
+        while (true)
+        {
+            AnsiConsole.Clear();
+            AnsiConsole.MarkupLine("[bold underline]Import Flights from CSV[/]\n");
 
-        var path = AnsiConsole.Ask<string>("[cyan]Enter full path to CSV file:[/]");
+            var path = AnsiConsole.Ask<string>("[cyan]Enter full path to CSV file (or 'BACK' to go to main menu):[/]");
+            if (path.Equals("BACK", StringComparison.OrdinalIgnoreCase)) break;
 
-        AnsiConsole.Status()
-            .Spinner(Spinner.Known.Dots)
-            .Start("Importing flights...", ctx =>
-            {
-                Thread.Sleep(500); // Simulate processing
-            });
+            AnsiConsole.Status()
+                .Spinner(Spinner.Known.Dots)
+                .Start("Importing flights...", ctx =>
+                {
+                    Thread.Sleep(500); // Simulate processing
+                });
 
-        var result = _flightService.ImportFromCsv(path);
-        ValidationDisplay.ShowImportResult(result);
+            var result = _flightService.ImportFromCsv(path);
+            ValidationDisplay.ShowImportResult(result);
+
+            if (!AnsiConsole.Confirm("Import another file?")) break;
+        }
     }
 
     private void ViewValidationRules()
     {
-        AnsiConsole.Clear();
-        var details = _flightService.GetFlightValidationDetails();
-        ValidationDisplay.ShowValidationDetails(details);
+        while (true)
+        {
+            AnsiConsole.Clear();
+            var details = _flightService.GetFlightValidationDetails();
+            ValidationDisplay.ShowValidationDetails(details);
+
+            if (!AnsiConsole.Confirm("View validation rules again?")) break;
+        }
     }
 
     private string? Ask(string label)
     {
-        var value = AnsiConsole.Ask<string>($"[cyan]{label} (or blank):[/]");
-        return string.IsNullOrWhiteSpace(value) ? null : value;
+        var value = AnsiConsole.Ask<string>($"[cyan]{label} (or blank, or 'BACK' to go to main menu):[/]");
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+        if (value.Equals("BACK", StringComparison.OrdinalIgnoreCase))
+            return "BACK";
+        return value;
     }
 
     private DateTime? ParseDate(string? input) =>
