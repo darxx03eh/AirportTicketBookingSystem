@@ -10,7 +10,7 @@ public class Flight
     [Required(ErrorMessage = "Flight Name is required.")]
     [RegularExpression(@"^[A-Z]{2}\d{3,4}$", ErrorMessage = "Flight number must be like 'AB123'.")]
     [Display(Name = "Flight Number", Description = "Format: 2 uppercase letters + 3-4 digits (e.g. AB123)")]
-    public string Name { get; set; } = string.Empty;
+    public string FlightNumber { get; set; } = string.Empty;
     [Required(ErrorMessage = "Departure country is required.")]
     [Display(Name = "Departure Country", Description = "Free Text")]
     public string DepartureCountry { get; set; } = string.Empty;

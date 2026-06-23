@@ -11,11 +11,4 @@
         <ProjectReference Include="..\AirportTicketBookingSystem.Service\AirportTicketBookingSystem.Service.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Data\" />
-      <Folder Include="IRepositories\" />
-      <Folder Include="Parsers\" />
-      <Folder Include="Repositories\" />
-    </ItemGroup>
-
 </Project>
