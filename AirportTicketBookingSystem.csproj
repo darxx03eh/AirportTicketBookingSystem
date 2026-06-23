@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Remove="AirportTicketBookingSystem.Infrastructure\**\*.cs" />
+        <Compile Remove="AirportTicketBookingSystem.Models\**\*.cs" />
+        <Compile Remove="AirportTicketBookingSystem.Service\**\*.cs" />
+        <Compile Remove="AirportTicketBookingSystem.UI\**\*.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="AirportTicketBookingSystem.Infrastructure\AirportTicketBookingSystem.Infrastructure.csproj" />
+        <ProjectReference Include="AirportTicketBookingSystem.UI\AirportTicketBookingSystem.UI.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include=".github\workflows\ci.yml" />
+    </ItemGroup>
+
+</Project>

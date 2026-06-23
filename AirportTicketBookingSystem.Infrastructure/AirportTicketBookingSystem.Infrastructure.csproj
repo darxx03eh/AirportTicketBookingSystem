@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AirportTicketBookingSystem.Models\AirportTicketBookingSystem.Models.csproj" />
+        <ProjectReference Include="..\AirportTicketBookingSystem.Service\AirportTicketBookingSystem.Service.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Data\" />
+      <Folder Include="IRepositories\" />
+      <Folder Include="Parsers\" />
+      <Folder Include="Repositories\" />
+    </ItemGroup>
+
+</Project>
