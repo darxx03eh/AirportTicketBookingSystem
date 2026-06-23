@@ -159,12 +159,19 @@ public class ManagerMenu(
 
     private string? Ask(string label)
     {
-        var value = AnsiConsole.Ask<string>($"[cyan]{label} (or blank, or 'BACK' to go to main menu):[/]");
-        if (string.IsNullOrWhiteSpace(value))
-            return null;
+        var prompt = new TextPrompt<string>($"[cyan]{label} (or blank, or 'BACK' to go to main menu):[/]")
+            .AllowEmpty()
+            .Validate(v =>
+            {
+                if (v.Equals("BACK", StringComparison.OrdinalIgnoreCase))
+                    return ValidationResult.Success();
+                return ValidationResult.Success();
+            });
+        
+        var value = AnsiConsole.Prompt(prompt);
         if (value.Equals("BACK", StringComparison.OrdinalIgnoreCase))
             return "BACK";
-        return value;
+        return string.IsNullOrWhiteSpace(value) ? null : value;
     }
 
     private DateTime? ParseDate(string? input) =>
