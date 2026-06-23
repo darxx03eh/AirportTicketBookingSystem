@@ -1,4 +1,4 @@
-﻿namespace AirportTicketBookingSystem.Service.DTOs;
+namespace AirportTicketBookingSystem.Models.DTOs;
 
 public class ImportError
 {
