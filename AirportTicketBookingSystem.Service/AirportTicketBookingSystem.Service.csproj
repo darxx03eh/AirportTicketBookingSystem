@@ -7,12 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\AirportTicketBookingSystem.Infrastructure\AirportTicketBookingSystem.Infrastructure.csproj" />
         <ProjectReference Include="..\AirportTicketBookingSystem.Models\AirportTicketBookingSystem.Models.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Implementations\" />
-      <Folder Include="Interfaces\" />
     </ItemGroup>
 
 </Project>

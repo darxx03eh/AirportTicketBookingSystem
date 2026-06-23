@@ -1,4 +1,5 @@
-﻿using AirportTicketBookingSystem.Models.Entities;
+﻿using AirportTicketBookingSystem.Models.DTOs;
+using AirportTicketBookingSystem.Models.Entities;
 
 namespace AirportTicketBookingSystem.Service.DTOs;
 

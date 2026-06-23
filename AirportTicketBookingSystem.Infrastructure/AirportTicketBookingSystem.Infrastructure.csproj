@@ -8,7 +8,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\AirportTicketBookingSystem.Models\AirportTicketBookingSystem.Models.csproj" />
-        <ProjectReference Include="..\AirportTicketBookingSystem.Service\AirportTicketBookingSystem.Service.csproj" />
     </ItemGroup>
 
 </Project>
