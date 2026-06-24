@@ -14,7 +14,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        var dataDirectory = @"C:\Users\MahmoudDarawsheh\RiderProjects\AirportTicketBookingSystem\AirportTicketBookingSystem.Infrastructure\Data";
+        var dataDirectory = Path.Combine(Directory.GetCurrentDirectory(), "AirportTicketBookingSystem.Infrastructure", "Data");
         IFlightCsvParser csvParser = new FlightCsvParser();
 
         IFlightRepository flightRepository = new FileFlightRepository(dataDirectory);
