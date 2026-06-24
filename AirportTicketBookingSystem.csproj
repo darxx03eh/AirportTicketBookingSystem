@@ -12,6 +12,7 @@
         <Compile Remove="AirportTicketBookingSystem.Models\**\*.cs" />
         <Compile Remove="AirportTicketBookingSystem.Service\**\*.cs" />
         <Compile Remove="AirportTicketBookingSystem.UI\**\*.cs" />
+        <Compile Remove="AirportTicketBookingSystem.XUnitTest\**\*.cs" />
     </ItemGroup>
 
     <ItemGroup>
