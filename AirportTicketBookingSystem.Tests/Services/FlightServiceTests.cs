@@ -1,5 +1,6 @@
 ﻿using AirportTicketBookingSystem.Infrastructure.IParsers;
 using AirportTicketBookingSystem.Infrastructure.IRepositories;
+using AirportTicketBookingSystem.Models.DTOs;
 using AirportTicketBookingSystem.Models.Entities;
 using AirportTicketBookingSystem.Models.Enums;
 using AirportTicketBookingSystem.Service.DTOs;
@@ -195,5 +196,110 @@ public class FlightServiceTests
         var result =  _sut.GetById("F1");
         
         result.Should().BeNull();
+    }
+
+    [Fact]
+    public void ImportFromCsv_AddsAllAndReturnsNoErrors_WhenAllIsValidRows()
+    {
+        var flight1 = MakeParsedFlight("AB123");
+        var flight2 = MakeParsedFlight("CD456");
+        _flightCsvParser.Setup(p => p.Parse("flights.csv")).Returns((
+            Flights: new List<(Flight flight, int rowNumber)> { (flight1, 2), (flight2, 3) },
+            ParseErrors: new List<ImportError>()
+        ));
+        
+        var result = _sut.ImportFromCsv("flights.csv");
+        
+        result.SuccessfulFlights.Count.Should().Be(2);
+        result.Errors.Should().BeEmpty();
+        result.HasErrors.Should().BeFalse();
+        result.TotalRows.Should().Be(2);
+        _flightRepository.Verify(r => r.AddRange(It.Is<List<Flight>>(l => l.Count == 2)), Times.Once);
+    }
+
+    [Fact]
+    public void ImportFromCsv_RowFailingDataAnnotationsValidations_GoesToErrorsNotSuccess()
+    {
+        var invalidFlight = MakeParsedFlight(number: "", departureCountry: "");
+        _flightCsvParser.Setup(p => p.Parse("flights.csv")).Returns((
+            Flights: new List<(Flight flight, int rowNumber)> { (invalidFlight, 5) },
+            ParseErrors: new List<ImportError>()
+        ));
+        
+        var result = _sut.ImportFromCsv("flights.csv");
+
+        result.SuccessfulFlights.Should().BeEmpty();
+        result.Errors.Should().ContainSingle();
+        result.Errors[0].RowNumber.Should().Be(5);
+        result.Errors[0].Messages.Should().NotBeEmpty();
+        
+        _flightRepository.Verify(f => f.AddRange(It.IsAny<List<Flight>>()), Times.Never);
+    }
+    
+    [Fact]
+    public void ImportFromCsv_ParserLevelErrors_ArePassedThroughToResult()
+    {
+        var parserError = new ImportError { RowNumber = 3, Messages = 
+            { "Departure date has an invalid format. Expected: YYYY-MM-DD." } 
+        };
+        _flightCsvParser.Setup(p => p.Parse("flights.csv")).Returns((
+            Flights: new List<(Flight flight, int rowNumber)>(),
+            ParseErrors: new List<ImportError> { parserError }
+        ));
+ 
+        var result = _sut.ImportFromCsv("flights.csv");
+
+        result.SuccessfulFlights.Should().BeEmpty();
+        result.Errors.Should().Contain(error => error.RowNumber == 3);
+        _flightRepository.Verify(r => r.AddRange(It.IsAny<List<Flight>>()), Times.Never);
+    }
+    
+    [Fact]
+    public void ImportFromCsv_MixOfValidAndInvalidRows_PartitionsCorrectly()
+    {
+        var valid = MakeParsedFlight("AB123");
+        var invalid = MakeParsedFlight(number: "");
+        _flightCsvParser.Setup(p => p.Parse("flights.csv")).Returns((
+            Flights: new List<(Flight flight, int rowNumber)> { (valid, 1), (invalid, 2) },
+            ParseErrors: new List<ImportError>()
+        ));
+ 
+        var result = _sut.ImportFromCsv("flights.csv");
+        
+        result.SuccessfulFlights.Should().ContainSingle();
+        result.Errors.Should().ContainSingle();
+        _flightRepository.Verify(r => r.AddRange(It.Is<List<Flight>>(
+            l => l.Count == 1 && l[0].FlightNumber == "AB123")), Times.Once);
+    }
+    
+    [Fact]
+    public void ImportFromCsv_ShouldDoesNotCallAddRange_WhenNoRowsAtAll()
+    {
+        _flightCsvParser.Setup(p => p.Parse("empty.csv")).Returns((
+            Flights: new List<(Flight flight, int rowNumber)>(),
+            ParseErrors: new List<ImportError>()
+        ));
+ 
+        var result = _sut.ImportFromCsv("empty.csv");
+        
+        result.SuccessfulFlights.Should().BeEmpty();
+        result.Errors.Should().BeEmpty();
+        _flightRepository.Verify(r => r.AddRange(It.IsAny<List<Flight>>()), Times.Never);
+    }
+    
+    [Fact]
+    public void ImportFromCsv_FileNotFound_ReturnsParseErrorAndDoesNotCallAddRange()
+    {
+        _flightCsvParser.Setup(p => p.Parse("missing.csv")).Returns((
+            Flights: new List<(Flight flight, int rowNumber)>(),
+            ParseErrors: new List<ImportError> { new() { RowNumber = 0, Messages = { "File not found: missing.csv" } } }
+        ));
+ 
+        var result = _sut.ImportFromCsv("missing.csv");
+        
+        result.SuccessfulFlights.Should().BeEmpty();
+        result.Errors.Should().ContainSingle();
+        result.Errors[0].RowNumber.Should().Be(0);
+        _flightRepository.Verify(r => r.AddRange(It.IsAny<List<Flight>>()), Times.Never);
     }
 }
