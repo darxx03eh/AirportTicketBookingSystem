@@ -4,7 +4,7 @@ using AirportTicketBookingSystem.Models.Enums;
 
 namespace AirportTicketBookingSystem.Models.Entities;
 
-public class Flight : IEquatable<Flight>
+public class Flight
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
@@ -46,30 +46,4 @@ public class Flight : IEquatable<Flight>
         FlightType.FirstClass => BasePrice * 2.0m,
         _ => BasePrice
     };
-
-    public bool Equals(Flight? other)
-    {
-        if (other == null) return false;
-        return Id == other.Id;
-    }
-
-    public override bool Equals(object? obj)
-    {
-        return Equals(obj as Flight);
-    }
-
-    public override int GetHashCode()
-    {
-        return Id?.GetHashCode() ?? 0;
-    }
-
-    public static bool operator ==(Flight left, Flight right)
-    {
-        return EqualityComparer<Flight>.Default.Equals(left, right);
-    }
-
-    public static bool operator !=(Flight left, Flight right)
-    {
-        return !(left == right);
-    }
 }
