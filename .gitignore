@@ -395,5 +395,4 @@ _Pvt_Extensions
 
 # Data fiels
 Data/
-*.csv
 *.json

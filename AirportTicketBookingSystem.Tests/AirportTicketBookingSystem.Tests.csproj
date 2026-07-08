@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.4"/>
+        <PackageReference Include="CsvHelper" Version="33.1.0" />
         <PackageReference Include="FluentAssertions" Version="8.10.0" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
         <PackageReference Include="Moq" Version="4.20.72" />
@@ -25,6 +26,12 @@
       <ProjectReference Include="..\AirportTicketBookingSystem.Infrastructure\AirportTicketBookingSystem.Infrastructure.csproj" />
       <ProjectReference Include="..\AirportTicketBookingSystem.Models\AirportTicketBookingSystem.Models.csproj" />
       <ProjectReference Include="..\AirportTicketBookingSystem.Service\AirportTicketBookingSystem.Service.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="TestData\Services\passenger-info-tests-data.csv">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
