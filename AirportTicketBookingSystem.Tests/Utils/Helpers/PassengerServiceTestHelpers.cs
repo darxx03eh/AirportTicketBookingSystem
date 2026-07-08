@@ -2,7 +2,7 @@
 
 namespace AirportTicketBookingSystem.Tests.Utils.Helpers;
 
-public class PassengerServiceTestHelper
+public class PassengerServiceTestHelpers
 {
     public static Passenger MakePassenger(string id = "P1") => new()
     {
