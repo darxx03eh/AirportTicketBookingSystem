@@ -6,7 +6,7 @@ using AirportTicketBookingSystem.Service.TestModels.Services;
 using AirportTicketBookingSystem.Tests.Attributes;
 using FluentAssertions;
 using Moq;
-using static AirportTicketBookingSystem.Tests.Utils.Helpers.PassengerServiceTestHelper;
+using static AirportTicketBookingSystem.Tests.Utils.Helpers.PassengerServiceTestHelpers;
 namespace AirportTicketBookingSystem.Tests.Services;
 
 public class PassengerServiceTests
