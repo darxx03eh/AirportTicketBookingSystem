@@ -7,7 +7,7 @@ namespace AirportTicketBookingSystem.Service.Implementations;
 public class PassengerService(IPassengerRepository passengerRepository) : IPassengerService
 {
     private readonly IPassengerRepository _passengerRepository = passengerRepository;
-    public Passenger GetOrCreate(string firstName, string lastName, string email)
+    public Passenger GetOrCreate(string? firstName, string? lastName, string? email)
     {
         var existing = _passengerRepository.GetByEmail(email);
         if (existing != null) return existing;

@@ -3,6 +3,7 @@ using AirportTicketBookingSystem.Models.Entities;
 using AirportTicketBookingSystem.Models.Enums;
 using AirportTicketBookingSystem.Service.DTOs;
 using AirportTicketBookingSystem.Service.Implementations;
+using AirportTicketBookingSystem.Service.Interfaces;
 using FluentAssertions;
 using Moq;
 using static AirportTicketBookingSystem.Tests.Utils.Helpers.BookingServiceTestHelpers;
@@ -14,7 +15,7 @@ public class BookingServiceTests
     private readonly Mock<IBookingRepository> _bookingRepository = new();
     private readonly Mock<IFlightRepository> _flightRepository = new();
     private readonly Mock<IPassengerRepository> _passengerRepository = new();
-    private readonly BookingService _sut;
+    private readonly IBookingService _sut;
     public BookingServiceTests() 
         => _sut = new BookingService(_bookingRepository.Object, _flightRepository.Object, _passengerRepository.Object);
 
