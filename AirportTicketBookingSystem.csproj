@@ -24,4 +24,10 @@
       <Content Include=".github\workflows\ci.yml" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Remove="AirportTicketBookingSystem.Tests\**\*.cs" />
+        <None Remove="AirportTicketBookingSystem.Tests\**\*.cs" />
+        <Compile Remove="**\obj\**\*.cs" />
+    </ItemGroup>
+
 </Project>
