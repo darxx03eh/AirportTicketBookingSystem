@@ -392,3 +392,7 @@ _Pvt_Extensions
 # MSBuild Framework
 *.metaproj
 *.metaproj.tmp
+
+# Data fiels
+Data/
+*.json
