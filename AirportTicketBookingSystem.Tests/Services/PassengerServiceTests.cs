@@ -2,7 +2,7 @@
 using AirportTicketBookingSystem.Models.Entities;
 using AirportTicketBookingSystem.Service.Implementations;
 using AirportTicketBookingSystem.Service.Interfaces;
-using AirportTicketBookingSystem.Service.TestModels.Services;
+using AirportTicketBookingSystem.Tests.TestModels.Services;
 using AirportTicketBookingSystem.Tests.Attributes;
 using FluentAssertions;
 using Moq;
