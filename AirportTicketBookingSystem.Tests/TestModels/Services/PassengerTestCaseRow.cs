@@ -1,4 +1,4 @@
-﻿namespace AirportTicketBookingSystem.Service.TestModels.Services;
+﻿namespace AirportTicketBookingSystem.Tests.TestModels.Services;
 
 public class PassengerTestCaseRow
 {

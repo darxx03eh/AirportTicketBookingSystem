@@ -53,7 +53,7 @@ public class FileFlightRepositoryTests : IDisposable
     public void Constructor_ShouldLoadsEmptyCacheWithoutError_WhenExistingEmptyArrayFile()
     {
         Directory.CreateDirectory(_dataDirectory);
-        File.WriteAllText(Path.Combine(Path.GetTempPath(), "flights.json"), string.Empty);
+        File.WriteAllText(Path.Combine(Path.GetTempPath(), "flights.json"), "[]");
 
         var repo = new FileFlightRepository(_dataDirectory);
 
