@@ -12,7 +12,7 @@ public class FileBookingRepositoryTests : IDisposable
 {
     private readonly string _dataDirectory;
     public FileBookingRepositoryTests()
-        => _dataDirectory = Path.Combine(Path.GetTempPath(), "BookingRepoTests_",  Guid.NewGuid().ToString());
+        => _dataDirectory = Path.Combine(Path.GetTempPath(), $"BookingRepositoryTests_{Guid.NewGuid()}");
     public void Dispose()
     {
         if(Directory.Exists(_dataDirectory))
