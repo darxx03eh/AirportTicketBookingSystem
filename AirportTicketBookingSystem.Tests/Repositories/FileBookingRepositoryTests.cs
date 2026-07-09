@@ -53,7 +53,7 @@ public class FileBookingRepositoryTests : IDisposable
     public void Constructor_ShouldLoadEmptyCacheWithoutError_WhenExistingEmptyArrayFile()
     {
         Directory.CreateDirectory(_dataDirectory);
-        File.WriteAllText(Path.Combine(Path.GetTempPath(), "bookings.json"), []);
+        File.WriteAllText(Path.Combine(Path.GetTempPath(), "bookings.json"), "[]");
         
         var repo = new FileBookingRepository(_dataDirectory);
 
